@@ -1,27 +1,29 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "utils/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "utils/stb_image_write.h"
+#include "utils/file-utils.h"
+
 #include<stdio.h>
 #include<math.h>
-#include "file-utils.h"
 
+const int NUMCHANNELS = 3;
 char map[27] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' '};
+const int COLORDISTANCE = floor(255.0/sizeof map);
 
 char* decode(char* filename)
 {
     int x,y,n;
-    unsigned char* data = stbi_load(filename, &x,&y,&n,3);
-    unsigned int size = x*y*3;
+    unsigned char* data = stbi_load(filename, &x,&y,&n,NUMCHANNELS);
+    unsigned int size = x*y*NUMCHANNELS;
     char* output = malloc(size);
     for(int i = 0; i < y; i++)
     {
         for(int k = 0; k < x; k++){  
-            const int index = k*3 + i*y*3;
-            const int colordistance = floor(255.0/27.0);
+            const int index = k*NUMCHANNELS + i*y*NUMCHANNELS;
             for(int j = 0; j < 3; j++){
-                int reschnum = data[index+j] / colordistance;
-                if(reschnum > 27) { output[index+j] = ' '; continue;};
+                int reschnum = data[index+j] / COLORDISTANCE;
+                if(reschnum >= sizeof map) { output[index+j] = ' '; continue;};
                 output[index+j] = map[reschnum];
             }
         }
@@ -42,25 +44,25 @@ int count_characters(char* chars){
 void encode(char* data, const char* filename)
 {
     int charcount = count_characters(data);
-    int size = charcount/3;
+    int size = charcount/NUMCHANNELS;
 
     // trying to make a cubic pic
     int dimensions = ceil(sqrt(size));
-    int pixelsize = (dimensions*dimensions*3);
+    int pixelsize = (dimensions*dimensions*NUMCHANNELS);
     char pixels[pixelsize];
     memset(pixels, 255, pixelsize);
     
     for(int i = 0; i < charcount; i++){
         if(data[i] == ' ') { pixels[i] = 255; continue;}
-        pixels[i] = ((data[i]-'a') *9)+4;
+        pixels[i] = ((data[i]-'a') * COLORDISTANCE)+NUMCHANNELS;
     }
-    stbi_write_png(filename, dimensions,dimensions,3,pixels,dimensions*3);
+    stbi_write_png(filename, dimensions,dimensions,NUMCHANNELS,pixels,dimensions*NUMCHANNELS);
 }
 
 int main(int argc, char *argv[]){
     char* choice = argv[1];
     if(choice == nullptr || !strcmp("--help", choice)){
-        printf("Either encode into text by using 'imagetool e textfile.txt' or decode by 'imagetool d myimage.png'\nThe text input MUST NOT have numbers or capital letters, only a-z and spacebars.");
+        printf("Either encode into text by using 'imagetool e textfile.txt' or decode by 'imagetool d myimage.png'\nThe text input MUST NOT have numbers or capital letters, only a-z and spacebars.\n");
         return 0;
     }
 
