@@ -11,7 +11,7 @@ size_t GetSize(FILE *fptr){
 
 char* ReadFile(const char* fileName){
     FILE *fptr = fopen(fileName, "r");
-    assert(fptr != nullptr);
+    assert(fptr != NULL);
     size_t size = GetSize(fptr);
     char* data = malloc(size);
 

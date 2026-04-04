@@ -61,7 +61,7 @@ void encode(char* data, const char* filename)
 
 int main(int argc, char *argv[]){
     char* choice = argv[1];
-    if(choice == nullptr || !strcmp("--help", choice)){
+    if(choice == NULL || !strcmp("--help", choice)){
         printf("Either encode into text by using 'imagetool e textfile.txt' or decode by 'imagetool d myimage.png'\nThe text input MUST NOT have numbers or capital letters, only a-z and spacebars.\n");
         return 0;
     }
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
     }
 
     char* secondchoice = argv[2];
-    if(secondchoice == nullptr) 
+    if(secondchoice == NULL) 
     {   
         printf("Inlucde a file name please\n");
         return 1;
