@@ -3,7 +3,8 @@ Using Sean Barrett's image loading and writing tools i wrote an app that encodes
 Repo used: [https://github.com/nothings/stb](https://github.com/nothings/stb)
 # How to use
 First of all compile it using     
-`gcc main.c -o main`  
+`gcc main.c -lm -o main`  
+(-lm is for math libraries)  
 Then type:  
 `./main --help`  
 For basic functionality.     
