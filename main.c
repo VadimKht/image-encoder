@@ -8,8 +8,8 @@
 #include<math.h>
 
 const int NUMCHANNELS = 3;
-char map[27] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' '};
-const int COLORDISTANCE = floor(255.0/sizeof map);
+char map[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' '};
+int COLORDISTANCE;
 
 char* decode(char* filename)
 {
@@ -53,16 +53,18 @@ void encode(char* data, const char* filename)
     memset(pixels, 255, pixelsize);
     
     for(int i = 0; i < charcount; i++){
-        if(data[i] == ' ') { pixels[i] = 255; continue;}
-        pixels[i] = ((data[i]-'a') * COLORDISTANCE)+NUMCHANNELS;
+        if(data[i] == ' ') { pixels[i] = (char)255; continue;}
+        // colordistance/2 for middle color may not be good in case if the map is too big
+        pixels[i] = ((data[i]-'a') * COLORDISTANCE) + COLORDISTANCE/2;
     }
     stbi_write_png(filename, dimensions,dimensions,NUMCHANNELS,pixels,dimensions*NUMCHANNELS);
 }
 
 int main(int argc, char *argv[]){
+    COLORDISTANCE = floor(255.0/sizeof map);
     char* choice = argv[1];
     if(choice == NULL || !strcmp("--help", choice)){
-        printf("Either encode into text by using 'imagetool e textfile.txt' or decode by 'imagetool d myimage.png'\nThe text input MUST NOT have numbers or capital letters, only a-z and spacebars.\n");
+        printf("Encode text file into image by using:\n%s e mytextfile.txt\nOr you can use:\n%s e \"Your string of text to be encoded\"\n You can decode the image using:\n%s d output.png\n",argv[0], argv[0], argv[0]);
         return 0;
     }
 
@@ -79,7 +81,13 @@ int main(int argc, char *argv[]){
     }
     //If encoding
     if(!strcmp("e",choice)){
-        encode(ReadFile(secondchoice), "output.png");
+        if(fopen(secondchoice, "r") == NULL)
+        {
+            encode(secondchoice, "output.png");
+        }
+        else{
+            encode(ReadFile(secondchoice), "output.png");
+        }
     } 
     // If decoding
     else if(!strcmp("d", choice)){
